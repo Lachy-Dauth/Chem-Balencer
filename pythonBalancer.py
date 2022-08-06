@@ -31,13 +31,18 @@ class Equation:
     # Breaks the lhs into elements (do with regex in JS version)
     for component in left_components:
       left_counts = dict()
+
+      # finds the index of the end of the element name
       for ind in range(0, len(component)):
         if component[ind] == ")":
+
+          # gets the name of the element
           if component[ind - 2] == "(":
             element = component[ind-1]
           elif component[ind - 3] == "(":
             element = component[ind-2:ind:]
 
+          # gets the amount of the element
           if len(component) <= ind + 4 and component[ind+3] in integers:
             number = int(component[ind + 1: ind + 4:])
           elif len(component) <= ind + 3 and component[ind+2] in integers:
@@ -45,10 +50,13 @@ class Equation:
           elif len(component) <= ind + 2 and component[ind+1] in integers:
             number = int(component[ind + 1: ind + 2:])
 
+          # adds the data to a element by element tally
           if element in left_counts:
             left_counts[element] += number
           else:
             left_counts[element] += number 
+
+          # adds the data to the total for one side of the equation
           if element in total_left:
             total_left[element] += number
           else:
@@ -58,8 +66,11 @@ class Equation:
     # Breaks the rhs into elements (do with regex in JS version)
     for component in right_components:
       right_counts = dict()
+
+      # finds the index of the end of the element name
       for ind in range(0, len(component)):
         if component[ind] == ")":
+
           # gets the name of the element
           if component[ind - 2] == "(":
             element = component[ind-1]
@@ -98,4 +109,26 @@ class Equation:
     """
     Balances the chemical equation
     """
+
+    if self.balanced:
+      string = str()
+      for dictionary in self.left:
+        compound = str()
+        for key in dictionary:
+          compound += key
+          compound += str(dictionary[key])
+        string += compound
+        string += " + "
+      string = string[:-3:] + " = "
+      for dictionary in self.right:
+        compound = str()
+        for key in dictionary:
+          compound += key
+          compound += str(dictionary[key])
+        string += compound
+        string += " + "
+      string = string[:-3:]
+      return string
+
+
 
