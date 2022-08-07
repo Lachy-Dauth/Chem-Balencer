@@ -1,6 +1,5 @@
 from random import randint
 import math
-from functools import reduce
 
 class Equation:
   """
@@ -140,7 +139,6 @@ class Equation:
       return(string)
     else:
       tries = 0
-
       while not self.balanced:
         tries += 1
         temp_left = list()
@@ -160,9 +158,10 @@ class Equation:
             new_dict[key] = item[key]
           temp_right.append(new_dict)
 
-          # generate random coefficients
-          left_coefficients = [randint(1, (2  + math.floor(tries ** 0.33))) for num in range(len(temp_left))]
-          right_coefficients = [randint(1, (2  + math.floor(tries ** 0.33))) for num in range(len(temp_right))]
+        # generate random coefficients
+        upper = (2  + math.floor(tries ** (1 / (len(temp_left) + len(temp_right) + 0.5))))
+        left_coefficients = [randint(1, upper) for num in range(len(temp_left))]
+        right_coefficients = [randint(1, upper) for num in range(len(temp_right))]
         
         for index in range(len(left_coefficients)):
           for key in temp_left[index]:
