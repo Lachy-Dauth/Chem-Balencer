@@ -1,13 +1,16 @@
+// random integer between two values inclusive
 function randint(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// the gcd of two numbers
 function gcd(a, b) {
   if (a == 0)
     return b;
   return gcd(b % a, a);
 }
 
+// the gcd of a list of numbers
 function findGCD(arr, n) {
   let result = arr[0];
   for (let i = 1; i < n; i++) {
@@ -26,25 +29,34 @@ function Equation(string){
   this.balanced = true;
   this.output = "This equation can't be solved";
 
+  // breaks the equation into the lhs and the rhs
   const [lhs, rhs] = string
       .replace(/ /g,'')
       .split(/=>|=|→|➔|➜|➙/);
+
+  // breaks the sides into compounds
   const left_components = lhs.split("+");
   const right_components = rhs.split("+");
-  let total_left = {};
-  let total_right = {};
 
+  let total_left = {}; // element totals for the left side
+  let total_right = {}; // element totals for the right side
+
+  // recursive algorithm to find elements from compounds
   const find_compound = function(component, multiplier, compound, total) {
     const element_regex = /\([A-Za-z0-9]*\)\d*|[A-Z][a-z]*[0-9]*(?=[\(A-Z]|$)/g;
     const subscript_regex = /\d*$|.*(?!\d*$)./g;
     const bracket_regex = /^\(|\)$/g;
-    let parts = component.match(element_regex);
+
+    let parts = component.match(element_regex); // breaks the equation into parts with a main bit and the subscript
     for (let j = 0; j < parts.length; j++) {
-      let [main, subscript] = parts[j].match(subscript_regex);
-      if (bracket_regex.test(main)) {
+      let [main, subscript] = parts[j].match(subscript_regex); // breaks the part into a main part and the subscript
+      // checks if the equation needs to be broken further
+      if (bracket_regex.test(main)) { 
+        // recursion happens
         find_compound(main.replace(bracket_regex, ""), multiplier * (subscript ?+subscript : 1), compound, total);
       }
       else {
+        // sets the values into the data fields
         if (compound[main] == null) {
           compound[main] = 0;
         }
@@ -57,11 +69,14 @@ function Equation(string){
     }
   }
 
+  // makes the output string from data
   const make_output = function(left, right, left_co, right_co) {
+    // checks and records the gcd of the data
     let multi = findGCD([...left_co, ...right_co], [...left_co, ...right_co].length);
 
     let out = "";
     for (let i = 0; i < left.length; i++) {
+      // makes the subscripts subscripts
       left[i] = left[i]
           .split("")
           .map(char => (char >= '0' && char <= '9' ? char.sub() : char))
@@ -72,6 +87,7 @@ function Equation(string){
     out = out.slice(0, -3);
     out += " = "
     for (let i = 0; i < right.length; i++) {
+      // makes the subscripts subscripts
       right[i] = right[i]
           .split("")
           .map(char => (char >= '0' && char <= '9' ? char.sub() : char))
@@ -83,18 +99,21 @@ function Equation(string){
     return out;
   } 
 
+  // gets data from the components on the lhs
   for (let i = 0; i < left_components.length; i++) {
     let compound = {};
     find_compound(left_components[i], 1, compound, total_left);
     this.left.push(compound);
   }
 
+  // gets data from the components on the rhs
   for (let i = 0; i < right_components.length; i++) {
     let compound = {};
     find_compound(right_components[i], 1, compound, total_right);
     this.right.push(compound);
   }
 
+  // checks if the equation can be solved, incomplete
   this.possible = true;
   for (const key in total_right) {
     if (total_left[key] == null) {
@@ -107,12 +126,14 @@ function Equation(string){
     }
   }
 
+  // checks if the equation is balanced 
   for (const key in total_right) {
     if (total_left[key] != total_right[key]) {
       this.balanced = false
     }
   }
 
+  // generates initial coefficients
   let left_coefficients = Array.from({length: this.left.length}, _ => 1);
   let right_coefficients = Array.from({length: this.right.length}, _ => 1);
 
@@ -124,6 +145,7 @@ function Equation(string){
     let temp_total_left = {};
     let temp_total_right = {};
 
+    // copies this.left and this.right to temp_left and temp_right
     for (let i= 0; i < this.left.length; i++) {
       let new_dict = {};
       for (const key in this.left[i]) {
@@ -131,7 +153,6 @@ function Equation(string){
       }
       temp_left.push(new_dict);
     }
-
     for (let i= 0; i < this.right.length; i++) {
       let new_dict = {};
       for (const key in this.right[i]) {
@@ -140,10 +161,12 @@ function Equation(string){
       temp_right.push(new_dict);
     }
 
+    // generates random coefficients 
     const upper = (2 + (tries ** (1 / (temp_left.length + temp_right.length + 1))));
     left_coefficients = Array.from({length: this.left.length}, _ => randint(1, upper));
     right_coefficients = Array.from({length: this.right.length}, _ => randint(1, upper));
 
+    // works out the total given the coefficients
     for (let i = 0; i < left_coefficients.length; i++) {
       for (const key in temp_left[i]) {
         temp_left[i][key] *= left_coefficients[i];
@@ -168,6 +191,7 @@ function Equation(string){
       }
     }
 
+    // checks if the equation is balanced
     this.balanced = true;
     for (const key in temp_total_right) {
       if (temp_total_left[key] != temp_total_right[key]) {
@@ -176,24 +200,28 @@ function Equation(string){
     }
   }
 
+  // makes the output string from data if it is balanced
   if (this.balanced && this.possible) this.output = make_output(left_components, right_components, left_coefficients, right_coefficients);
-  hideLoading();
+  hideLoading(); // removes the loading screen since it is done
 }
 
-
+// this function runs when balance is clicked 
 function balance_equation(){
   const output_p = document.querySelector("#balanced_equation");
-  const equation_field = document.querySelector("#equation")
+  const equation_field = document.querySelector("#equation") // the input field with the unbalanced equation
   output_p.textContent = "The Equation Isn't Valid";
   output_p.innerHTML = new Equation(equation_field.value).output;
 }
 
+// the loading screen element
 const loaderContainer = document.querySelector('.loader-container');
 
+// displays the loading screen
 const displayLoading = () => {
   loaderContainer.classList.remove('loader-container-hidden');
 };
 
+// removes the loading screen
 const hideLoading = () => {
   loaderContainer.classList.add('loader-container-hidden');
 };
