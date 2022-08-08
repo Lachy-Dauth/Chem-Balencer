@@ -2,6 +2,34 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
-h1 {
+html {
+  background-color: rgb(225, 225, 225);
+}
 
+h1 {
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+
+.wide_text_field {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 40px;
+}
+
+input {
+  font-size: 1.5rem;
+}
+
+#equation {
+  border: 1px solid black;
+  border-radius: 5px 0px 0px 5px;
+  border-right: none;
+}
+
+#balance {
+  border: 1px solid black;
+  border-radius: 0px 5px 5px 0px;
+  border-left: none;
 }

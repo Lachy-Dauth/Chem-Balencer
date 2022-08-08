@@ -28,7 +28,7 @@ function Equation(string){
 
   const [lhs, rhs] = string
       .replace(/ /g,'')
-      .split("=");
+      .split(/=>|=|→|➔|➜|➙/);
   const left_components = lhs.split("+");
   const right_components = rhs.split("+");
   let total_left = {};
@@ -37,7 +37,7 @@ function Equation(string){
   const find_compound = function(component, multiplier, compound, total) {
     const element_regex = /\([A-Za-z0-9]*\)\d*|[A-Z][a-z]*[0-9]*(?=[\(A-Z]|$)/g;
     const subscript_regex = /\d*$|.*(?!\d*$)./g;
-    const bracket_regex = /\(|\)/g;
+    const bracket_regex = /^\(|\)$/g;
     let parts = component.match(element_regex);
     for (let j = 0; j < parts.length; j++) {
       let [main, subscript] = parts[j].match(subscript_regex);
@@ -48,21 +48,11 @@ function Equation(string){
         if (compound[main] == null) {
           compound[main] = 0;
         }
-        if (subscript) {
-          compound[main] += +subscript * multiplier;
-        }
-        else {
-          compound[main] += multiplier;
-        }
+        compound[main] += multiplier * (subscript ? +subscript : 1)
         if (total[main] == null) {
           total[main] = 0;
         }
-        if (subscript) {
-          total[main] += +subscript * multiplier;
-        }
-        else {
-          total[main] += multiplier;
-        }
+        total[main] += multiplier * (subscript ? +subscript : 1)
       }
     }
   }
@@ -173,6 +163,6 @@ function Equation(string){
 function balance_equation(){
   const output_p = document.querySelector("#balanced_equation");
   const equation_field = document.querySelector("#equation")
-  output_p.textContent = "Loading";
+  output_p.textContent = "The Equation Isn't Valid";
   output_p.textContent = new Equation(equation_field.value).output;
 }
