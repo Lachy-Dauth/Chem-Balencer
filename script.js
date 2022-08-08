@@ -140,7 +140,7 @@ function Equation(string){
       temp_right.push(new_dict);
     }
 
-    const upper = (2 + (tries ** (1 / (temp_left.length + temp_right.length + 0.5))));
+    const upper = (2 + (tries ** (1 / (temp_left.length + temp_right.length + 1))));
     left_coefficients = Array.from({length: this.left.length}, _ => randint(1, upper));
     right_coefficients = Array.from({length: this.right.length}, _ => randint(1, upper));
 
@@ -177,6 +177,7 @@ function Equation(string){
   }
 
   if (this.balanced && this.possible) this.output = make_output(left_components, right_components, left_coefficients, right_coefficients);
+  hideLoading();
 }
 
 
@@ -186,3 +187,13 @@ function balance_equation(){
   output_p.textContent = "The Equation Isn't Valid";
   output_p.innerHTML = new Equation(equation_field.value).output;
 }
+
+const loaderContainer = document.querySelector('.loader-container');
+
+const displayLoading = () => {
+  loaderContainer.classList.remove('loader-container-hidden');
+};
+
+const hideLoading = () => {
+  loaderContainer.classList.add('loader-container-hidden');
+};

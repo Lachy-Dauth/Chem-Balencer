@@ -9,13 +9,16 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <div class="loader-container loader-container-hidden">
+    <div class="spinner"></div>
+  </div>
   <main>
     <h1>Chemistry Balancer</h1>
     <div>
       <label for="equation" id="equation_label">Put The Equation You Need To Balance Here:</label>
       <div class="wide_text_field">
         <input type="text" id="equation">
-        <input type="button" value="Balance" onclick="balance_equation()" id="balance">
+        <input type="button" value="Balance" onclick="displayLoading(); setTimeout(balance_equation, 0);" id="balance">
       </div>
     </div>
     <p id="balanced_equation">The balanced equation will appear here</p>
