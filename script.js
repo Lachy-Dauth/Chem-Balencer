@@ -23,8 +23,8 @@ function findGCD(arr, n) {
 function Equation(string){
   this.left = []; // list of compounds on the LHS
   this.right = []; // list of compounds on the RHS
-  this.balanced = true
-  this.output = "Not Done"
+  this.balanced = true;
+  this.output = "This equation can't be solved";
 
   const [lhs, rhs] = string
       .replace(/ /g,'')
@@ -62,12 +62,20 @@ function Equation(string){
 
     let out = "";
     for (let i = 0; i < left.length; i++) {
+      left[i] = left[i]
+          .split("")
+          .map(char => (char >= '0' && char <= '9' ? char.sub() : char))
+          .join("");
       out += (left_co[i]/multi == 1 ? "" : left_co[i]/multi) + left[i];
       out += " + ";
     }
     out = out.slice(0, -3);
     out += " = "
     for (let i = 0; i < right.length; i++) {
+      right[i] = right[i]
+          .split("")
+          .map(char => (char >= '0' && char <= '9' ? char.sub() : char))
+          .join("");
       out += (right_co[i]/multi == 1 ? "" : right_co[i]/multi) + right[i];
       out += " + ";
     }
@@ -87,6 +95,18 @@ function Equation(string){
     this.right.push(compound);
   }
 
+  this.possible = true;
+  for (const key in total_right) {
+    if (total_left[key] == null) {
+      this.possible = false
+    }
+  }
+  for (const key in total_left) {
+    if (total_right[key] == null) {
+      this.possible = false
+    }
+  }
+
   for (const key in total_right) {
     if (total_left[key] != total_right[key]) {
       this.balanced = false
@@ -97,7 +117,7 @@ function Equation(string){
   let right_coefficients = Array.from({length: this.right.length}, _ => 1);
 
   let tries = 0;
-  while (this.balanced == false) {
+  while (this.balanced == false && this.possible) {
     tries += 1;
     let temp_left = [];
     let temp_right = [];
@@ -156,7 +176,7 @@ function Equation(string){
     }
   }
 
-  if (this.balanced) this.output = make_output(left_components, right_components, left_coefficients, right_coefficients);
+  if (this.balanced && this.possible) this.output = make_output(left_components, right_components, left_coefficients, right_coefficients);
 }
 
 
@@ -164,5 +184,5 @@ function balance_equation(){
   const output_p = document.querySelector("#balanced_equation");
   const equation_field = document.querySelector("#equation")
   output_p.textContent = "The Equation Isn't Valid";
-  output_p.textContent = new Equation(equation_field.value).output;
+  output_p.innerHTML = new Equation(equation_field.value).output;
 }

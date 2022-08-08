@@ -61,3 +61,8 @@ input {
 #balanced_equation {
   font-size: 1.3rem;
 }
+
+#periodic_table {
+  width: 80%;
+  max-width: 1000px;
+}
