@@ -11,7 +11,16 @@ h1 {
   border-bottom: 1px solid black;
 }
 
+h2 {
+  border-bottom: 1px solid black;
+}
+
+li {
+  font-size: 1.3rem;
+}
+
 .wide_text_field {
+  padding-top: 10px;
   width: 100%;
   display: grid;
   grid-template-columns: 3fr 1fr;
@@ -29,7 +38,26 @@ input {
 }
 
 #balance {
+  transition: all 0.05s ease;
   border: 1px solid black;
   border-radius: 0px 5px 5px 0px;
   border-left: none;
+}
+
+#balance:hover {
+  border-radius: 0px 10px 10px 0px;
+  background-color: rgb(213, 213, 213);
+}
+
+#balance:active {
+  border-radius: 0px 5px 5px 0px;
+  background-color: rgb(240, 240, 240);
+}
+
+#equation_label {
+  font-size: 1.3rem;
+}
+
+#balanced_equation {
+  font-size: 1.3rem;
 }
