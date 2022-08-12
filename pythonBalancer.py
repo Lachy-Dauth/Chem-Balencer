@@ -159,7 +159,7 @@ class Equation:
           temp_right.append(new_dict)
 
         # generate random coefficients
-        upper = (2  + math.floor(tries ** (1 / (len(temp_left) + len(temp_right) + 0.5))))
+        upper = (2 + math.floor(tries ** (1 / (len(temp_left) + len(temp_right) + 0.5))))
         left_coefficients = [randint(1, upper) for num in range(len(temp_left))]
         right_coefficients = [randint(1, upper) for num in range(len(temp_right))]
         

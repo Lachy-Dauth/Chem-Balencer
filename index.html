@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <img src="./Images/bg.jpg" alt="bg Image" class="bg">
   <div class="loader-container loader-container-hidden">
     <div class="spinner"></div>
   </div>
@@ -18,7 +19,7 @@
       <label for="equation" id="equation_label">Put The Equation You Need To Balance Here:</label>
       <div class="wide_text_field">
         <input type="text" id="equation">
-        <input type="button" value="Balance" onclick="displayLoading(); setTimeout(balance_equation, 0);" id="balance">
+        <input type="button" value="Balance" onclick="displayLoading(); setTimeout(balance_it, 0);" id="balance">
       </div>
     </div>
     <p id="balanced_equation">The balanced equation will appear here</p>
@@ -29,6 +30,8 @@
         <li>Always use the upper case for the first character in the element name and the lower case for the second character. Examples: Fe, Au, Co, Br, C, O, N, F.</li>
         <li>Compound states [like (s) (aq) or (g)] are not required and will not work</li>
         <li>Please use either an equals sign, =, or an equals sign and a grater than sign, =>, for the yields sign between the reactants and the products</li>
+        <li>For equations with ions please use the ^ symbol like CO3^2- or NH4^+</li>
+        <li>For spare electrons use a single lower case e</li>
       </ul>
     </section>
     <section>
@@ -38,6 +41,7 @@
         <li>KMnO4 + HCl => KCl + MnCl2 + H2O + Cl2</li>
         <li>K4Fe(CN)6 + H2SO4 + H2O = K2SO4 + FeSO4 + (NH4)2SO4 + CO</li>
         <li>C6H5COOH + O2 => CO2 + H2O</li>
+        <li>CO3^2- = O2 + CO2 + e</li>
       </ul>
     </section>
     <section>
