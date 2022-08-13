@@ -23,11 +23,72 @@ function findGCD(arr, n) {
   return result;
 }
 
+function Matrix(numRows, numCols) {
+  this.numRows = numRows;
+  this.numCols = numCols;
+  // Initialize with zeros
+  let row = [];
+  for (var j = 0; j < numCols; j++)
+      row.push(0);
+  this.cells = []; // Main data (the matrix)
+  for (var i = 0; i < numRows; i++)
+      this.cells.push([...row]);
+
+  this.get = function(row, col) {
+    if (row >= 0 && row <= this.numRows && col >= 0 && col <= this.numCols) {
+      return this.cells[row][col]
+    }
+  }
+
+  this.set = function(row, col, value) {
+    if (row >= 0 && row <= this.numRows && col >= 0 && col <= this.numCols) {
+      this.cells[row][col] = value;
+    }
+  }
+
+  this.swap = function(row1, row2) {
+    if (row1 >= 0 && row1 <= this.numRows && row2 >= 0 && row2 <= this.numCols) {
+      let temp = this.cells[row1];
+      this.cells[row1] = this.cells[row2];
+      this.cells[row2] = temp;
+    }
+  }
+
+  this.add = function(row1, row2) {
+    return row1.map((number, index) => {
+      return number + row2[index];
+    });
+  }
+
+  this.multiple = function(row, c) {
+    return row.map(num => num*c);
+  }
+
+  this.gcdRow = function(row) {
+    return findGCD(row, row.length);
+  }
+
+  this.simplifyRow = function(row) {
+    let sign = 0;
+    row.forEach(element => {
+      if (element != 0) {
+        if (element < 0) sign = -1;
+        if (element > 0) sign = 1;
+        return;
+      }
+    });
+
+    const divisor = this.gcdRow(row) * sign;
+    return row.map(num => num / divisor);
+  }
+}
+
+  
 function balance_equation(string){
-  left = []; // list of compounds on the LHS
-  right = []; // list of compounds on the RHS
-  balanced = true;
-  output = "This equation can't be solved";
+  let left = []; // list of compounds on the LHS
+  let right = []; // list of compounds on the RHS
+  let balanced = true;
+  let output = "This equation can't be solved";
 
   if (string.split(/=>|=|→|➔|➜|➙/g).length != 2) return "SyntaxError in the yields sign";
   // breaks the equation into the lhs and the rhs
@@ -40,11 +101,13 @@ function balance_equation(string){
   const left_components = lhs.split(split_regex);
   const right_components = rhs.split(split_regex);
 
+  let chemicals = ["e"];
+
   let total_left = {e:0}; // element totals for the left side
   let total_right = {e:0}; // element totals for the right side
 
   // recursive algorithm to find elements from compounds
-  const find_compound = function(component, multiplier, compound, total) {
+  const find_compound = function(component, multiplier, compound, total, chemicals) {
     const electron_regex = /\^[0-9]*[+-](?![^\(]*\))/;
     const element_regex = /\([A-Za-z0-9]*\)\d*|[A-Z][a-z]*[0-9]*(?=[\(A-Z]|$)/g;
     const subscript_regex = /\d*$|.*(?!\d*$)./g;
@@ -76,7 +139,7 @@ function balance_equation(string){
       // checks if the equation needs to be broken further
       if (bracket_regex.test(main)) { 
         // recursion happens
-        find_compound(main.replace(bracket_regex, ""), multiplier * (subscript ?+subscript : 1), compound, total);
+        find_compound(main.replace(bracket_regex, ""), multiplier * (subscript ?+subscript : 1), compound, total, chemicals);
       }
       else {
         // sets the values into the data fields
@@ -88,6 +151,7 @@ function balance_equation(string){
           total[main] = 0;
         }
         total[main] += multiplier * (subscript ? +subscript : 1)
+        if (!chemicals.includes(main)) chemicals.push(main); 
       }
     }
   }
@@ -95,14 +159,14 @@ function balance_equation(string){
     // gets data from the components on the lhs
     for (let i = 0; i < left_components.length; i++) {
       let compound = {e:0};
-      find_compound(left_components[i], 1, compound, total_left);
+      find_compound(left_components[i], 1, compound, total_left, chemicals);
       left.push(compound);
     }
 
     // gets data from the components on the rhs
     for (let i = 0; i < right_components.length; i++) {
       let compound = {e:0};
-      find_compound(right_components[i], 1, compound, total_right);
+      find_compound(right_components[i], 1, compound, total_right, chemicals);
       right.push(compound);
     }
   } catch (error) {
@@ -151,6 +215,22 @@ function balance_equation(string){
     out = out.slice(0, -3);
     return out;
   } 
+
+  // create matrix columns
+  let matrix = new Matrix(chemicals.length + 1, left.length + right.length + 1);
+  for (let i = 0; i < chemicals.length; i++) {
+    const element = chemicals[i];
+    for (let j = 0; j < left.length; j++) {
+      const compound = left[j];
+      matrix.set(i, j, (compound[element] ? +compound[element] : 0));
+    }
+    for (let j = 0; j < right.length; j++) {
+      const compound = right[j];
+      matrix.set(i, j, (compound[element] ? -compound[element] : 0));
+      console.log(matrix.get(i, j));
+    }
+  }
+  console.table(matrix.cells);
 
   // checks if the equation can be solved, incomplete
   possible = true;

@@ -37,7 +37,7 @@ li {
   grid-template-rows: 40px;
 }
 
-input {
+input, button {
   font-size: 1.5rem;
 }
 
@@ -73,8 +73,8 @@ input {
 }
 
 #periodic_table {
-  width: 80%;
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1400px;
 }
 
 .loader-container {
