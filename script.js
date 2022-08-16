@@ -310,10 +310,7 @@ function balance_equation(string){
       // makes the subscripts subscripts
       if (right[i] == "e") right[i] = "e<sup>-</sup>";
 
-      right[i] = right[i]
-          .split("")
-          .map(char => (char >= '0' && char <= '9' ? char.sub() : char))
-          .join("");
+      right[i] = right[i].replace(/[0-9]+(?![+-])/g, number => number.sub());
 
       right[i] = right[i].replace(electron_regex, electron => {
         return "<sup>" + electron.slice(1) + "</sup>";
