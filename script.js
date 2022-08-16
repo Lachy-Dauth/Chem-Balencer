@@ -3,12 +3,26 @@ function randint(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// the gcd of two numbers
-function gcd(a, b) {
-  if (a == 0)
-    return b;
-  return gcd(b % a, a);
+function lcm(x, y) {
+  if ((typeof x !== 'number') || (typeof y !== 'number')) 
+   return false;
+ return (!x || !y) ? 0 : Math.abs((x * y) / gcd(x, y));
 }
+
+// the gcd of two numbers
+function gcd(x, y) {
+  if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
+    throw new Error("Invalid argument");
+  x = Math.abs(x);
+  y = Math.abs(y);
+  while (y != 0) {
+    var z = x % y;
+    x = y;
+    y = z;
+  }
+  return x;
+}
+
 
 // the gcd of a list of numbers
 function findGCD(arr, n) {
@@ -60,7 +74,7 @@ function Matrix(numRows, numCols) {
     });
   }
 
-  this.multiple = function(row, c) {
+  this.multiply = function(row, c) {
     return row.map(num => num*c);
   }
 
@@ -70,19 +84,79 @@ function Matrix(numRows, numCols) {
 
   this.simplifyRow = function(row) {
     let sign = 0;
-    row.forEach(element => {
+    for (let index = 0; index < row.length; index++) {
+      const element = row[index];
       if (element != 0) {
         if (element < 0) sign = -1;
         if (element > 0) sign = 1;
-        return;
+        break;
       }
-    });
+    };
 
-    const divisor = this.gcdRow(row) * sign;
+    const divisor = (sign == 0 ? 1 : this.gcdRow(row) * sign);
     return row.map(num => num / divisor);
+  }
+
+  this.gaussJordanEliminate = function() {
+    this.cells = this.cells.map(row => this.simplifyRow(row));
+
+    let num_pivots = 0;
+    for (let i = 0; i < this.numCols; i++) {
+      let curr_row = num_pivots;
+      while (curr_row < this.numRows && this.cells[curr_row][i] == 0) {
+        curr_row ++;
+      }
+      if (curr_row != this.numRows) {
+        this.swap(curr_row, num_pivots);
+        while (curr_row <= this.numRows) {
+          if (this.cells[curr_row] != null && this.cells[curr_row][i] != 0) {
+            this.simplifyRow(this.cells[curr_row]);
+            this.cells[curr_row] = this.multiply(this.cells[curr_row], lcm(this.cells[curr_row][i], this.cells[num_pivots][i]) / -this.cells[curr_row][i]);
+            this.cells[num_pivots] = this.multiply(this.cells[num_pivots], lcm(this.cells[curr_row][i], this.cells[num_pivots][i]) / this.cells[num_pivots][i]);
+            this.cells[curr_row] = this.add(this.cells[num_pivots], this.cells[curr_row]);
+          }
+          curr_row += 1;
+        }
+        num_pivots += 1;
+        this.cells = this.cells.map(row => this.simplifyRow(row));
+      }
+    }
+
+    num_pivots = 0;
+    for (let i = 0; i < this.numCols; i++) {
+      let curr_row = num_pivots;
+      while (curr_row < this.numRows && this.cells[curr_row][i] == 0) {
+        curr_row += 1;
+      }
+      if (curr_row != this.numRows) {
+        while (curr_row >= 0) {
+          if (this.cells[curr_row] != null && this.cells[curr_row][i] != 0) {
+            this.simplifyRow(this.cells[curr_row]);
+            this.cells[curr_row] = this.multiply(this.cells[curr_row], lcm(this.cells[curr_row][i], this.cells[num_pivots][i]) / -this.cells[curr_row][i]);
+            this.cells[num_pivots] = this.multiply(this.cells[num_pivots], lcm(this.cells[curr_row][i], this.cells[num_pivots][i]) / this.cells[num_pivots][i]);
+            this.cells[curr_row] = this.add(this.cells[num_pivots], this.cells[curr_row]);
+          }
+          curr_row -= 1;
+        }
+        num_pivots += 1;
+        this.cells = this.cells.map(row => this.simplifyRow(row));
+      }
+    }
+    this.cells = this.cells.map(row => this.simplifyRow(row));
+    return this.cells;
   }
 }
 
+let matrix1 = new Matrix(4, 4);
+matrix1.set(0, 0, 1);
+matrix1.set(0, 3, 1);
+matrix1.set(1, 0, 2);
+matrix1.set(2, 0, 3);
+matrix1.set(2, 1, 1);
+matrix1.set(1, 2, -2);
+matrix1.set(2, 2, -1);
+console.table(matrix1.cells);
+console.table(matrix1.gaussJordanEliminate());
   
 function balance_equation(string){
   let left = []; // list of compounds on the LHS
@@ -113,7 +187,7 @@ function balance_equation(string){
     const subscript_regex = /\d*$|.*(?!\d*$)./g;
     const bracket_regex = /^\(|\)$/g;
 
-    if (component === "e") {
+    if (component == "e") {
       compound.e -= 1;
       total.e -= 1;
       return;
@@ -127,8 +201,8 @@ function balance_equation(string){
         [number] = electrons[j].match(/\d+/);
       }
       let [sign] = electrons[j].match(/[+-]/);
-      compound.e += (sign == "=" ? +number : -number) * multiplier;
-      total.e += (sign == "=" ? +number : -number) * multiplier;
+      compound.e += (sign == "+" ? +number : -number) * multiplier;
+      total.e += (sign == "+" ? +number : -number) * multiplier;
     }
 
     component = component.replace(electron_regex, "");
@@ -174,6 +248,42 @@ function balance_equation(string){
     return "SyntaxError in the compound";
   }
 
+  const check_multiple_solutions = function(matrix) {
+    let coefficients = matrix.numCols - 1;
+    let number = 0;
+    matrix.cells.forEach(row => {
+      if (row.some(cell => cell != 0)) number ++;
+    });
+    if (number != coefficients) return true;
+  }
+
+  const get_coefficients = function(matrix) {
+    let lowest = 1;
+    matrix.cells.forEach(row => {
+      for (let index = 0; index < row.length; index++) {
+        const element = row[index];
+        if (element != 0) {
+          lowest = lcm(lowest, element);
+          break;
+        }
+      };
+    });
+    matrix.cells.forEach((row, i) => {
+      let index = 0;
+      while (index < row.length) {
+        const element = row[index];
+        if (element != 0) {
+          lowest = lcm(lowest, element);
+          break;
+        }
+        index ++;
+      }
+      matrix.cells[i] = matrix.multiply(row, lowest/(row[index] ? row[index] : 1));
+    });
+    console.table(matrix.cells);
+    return matrix.cells.map(row => row[matrix.numCols - 1])
+  }
+
   // makes the output string from data
   const make_output = function(left, right, left_co, right_co) {
     const electron_regex = /\^[0-9]*[+-](?![^\(]*\))/g;
@@ -192,10 +302,10 @@ function balance_equation(string){
       })
 
       out += (left_co[i]/multi == 1 ? "" : left_co[i]/multi) + left[i];
-      out += " → ";
+      out += " + ";
     }
     out = out.slice(0, -3);
-    out += " ➜ "
+    out += " → "
     for (let i = 0; i < right.length; i++) {
       // makes the subscripts subscripts
       if (right[i] == "e") right[i] = "e<sup>-</sup>";
@@ -216,111 +326,48 @@ function balance_equation(string){
     return out;
   } 
 
+    // checks if the equation can be solved, incomplete
+    possible = true;
+    for (const key in total_right) {
+      if (total_left[key] == null) {
+        possible = false
+      }
+    }
+    for (const key in total_left) {
+      if (total_right[key] == null) {
+        possible = false
+      }
+    }
+  
+    if (!possible) return "All zero solution only";
+
   // create matrix columns
   let matrix = new Matrix(chemicals.length + 1, left.length + right.length + 1);
   for (let i = 0; i < chemicals.length; i++) {
     const element = chemicals[i];
     for (let j = 0; j < left.length; j++) {
       const compound = left[j];
-      matrix.set(i, j, (compound[element] ? +compound[element] : 0));
+      matrix.set(i+1, j, (compound[element] ? +compound[element] : 0));
     }
     for (let j = 0; j < right.length; j++) {
       const compound = right[j];
-      matrix.set(i, j, (compound[element] ? -compound[element] : 0));
-      console.log(matrix.get(i, j));
+      matrix.set(i+1, j + left.length, (compound[element] ? -compound[element] : 0));
     }
   }
+  matrix.set(0, 0, 1);
+  matrix.set(0, matrix.numCols - 1, 1);
   console.table(matrix.cells);
+  console.table(matrix.gaussJordanEliminate());
+  if (check_multiple_solutions(matrix)) return "There is more than one solution";
+  let coefficients = get_coefficients(matrix);
 
-  // checks if the equation can be solved, incomplete
-  possible = true;
-  for (const key in total_right) {
-    if (total_left[key] == null) {
-      possible = false
-    }
-  }
-  for (const key in total_left) {
-    if (total_right[key] == null) {
-      possible = false
-    }
-  }
+  // generates coefficients
+  let left_coefficients = coefficients.slice(0, left.length);
+  let right_coefficients = coefficients.slice(left.length, left.length + right.length);
 
-  // checks if the equation is balanced 
-  for (const key in total_right) {
-    if (total_left[key] != total_right[key]) {
-      balanced = false
-    }
-  }
+  console.log(left_coefficients, right_coefficients);
 
-  // generates initial coefficients
-  let left_coefficients = Array.from({length: left.length}, _ => 1);
-  let right_coefficients = Array.from({length: right.length}, _ => 1);
-
-  let tries = 0;
-  while (balanced == false && possible) {
-    tries += 1;
-    let temp_left = [];
-    let temp_right = [];
-    let temp_total_left = {};
-    let temp_total_right = {};
-
-    // copies left and right to temp_left and temp_right
-    for (let i= 0; i < left.length; i++) {
-      let new_dict = {};
-      for (const key in left[i]) {
-        new_dict[key] = left[i][key];
-      }
-      temp_left.push(new_dict);
-    }
-    for (let i= 0; i < right.length; i++) {
-      let new_dict = {};
-      for (const key in right[i]) {
-        new_dict[key] = right[i][key];
-      }
-      temp_right.push(new_dict);
-    }
-
-    // generates random coefficients 
-    const upper = (2 + (tries ** (1 / (temp_left.length + temp_right.length + 1))));
-    left_coefficients = Array.from({length: left.length}, _ => randint(1, upper));
-    right_coefficients = Array.from({length: right.length}, _ => randint(1, upper));
-
-    // works out the total given the coefficients
-    for (let i = 0; i < left_coefficients.length; i++) {
-      for (const key in temp_left[i]) {
-        temp_left[i][key] *= left_coefficients[i];
-        if (temp_total_left[key] != null) {
-          temp_total_left[key] += temp_left[i][key];
-        }
-        else {
-          temp_total_left[key] = temp_left[i][key];
-        }
-      }
-    }
-
-    for (let i = 0; i < right_coefficients.length; i++) {
-      for (const key in temp_right[i]) {
-        temp_right[i][key] *= right_coefficients[i];
-        if (temp_total_right[key] != null) {
-          temp_total_right[key] += temp_right[i][key];
-        }
-        else {
-          temp_total_right[key] = temp_right[i][key];
-        }
-      }
-    }
-
-    // checks if the equation is balanced
-    balanced = true;
-    for (const key in temp_total_right) {
-      if (temp_total_left[key] != temp_total_right[key]) {
-        balanced = false
-      }
-    }
-  }
-
-  // makes the output string from data if it is balanced
-  if (balanced && possible) output = make_output(left_components, right_components, left_coefficients, right_coefficients);
+  output = make_output(left_components, right_components, left_coefficients, right_coefficients);
   return output;
 }
 
@@ -328,7 +375,6 @@ function balance_equation(string){
 function balance_it(){
   const output_p = document.querySelector("#balanced_equation");
   const equation_field = document.querySelector("#equation") // the input field with the unbalanced equation
-  output_p.textContent = "The Equation Isn't Valid";
   output_p.innerHTML = balance_equation(equation_field.value);
   hideLoading(); // removes the loading screen since it is done
 }
