@@ -17,6 +17,7 @@ html {
 }
 
 main {
+  padding-left: 50px;
   box-shadow: 0px 0px 0px 1000px rgba(185, 225, 233, 0.499);
   background-color: rgba(185, 225, 233, 0.499);
 }
