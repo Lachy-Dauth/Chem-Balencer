@@ -369,14 +369,30 @@ function balance_equation(string){
 }
 
 // this function runs when balance is clicked 
-function balance_it(){
+function balance_it(set_url){
   const output_p = document.querySelector("#balanced_equation");
-  const equation_field = document.querySelector("#equation") // the input field with the unbalanced equation
+  const equation_field = document.querySelector("#equation"); // the input field with the unbalanced equation
   output_p.innerHTML = balance_equation(equation_field.value);
-  hideLoading(); // removes the loading screen since it is done
+  if (set_url) {
+    window.location.search = encodeURI(`?equation=${equation_field.value}`).replace(/\+/g, "%2B");
+  }
 }
 
-window.addEventListener("keydown", e => e.key == "Enter" ? balance_it() : null);
+window.addEventListener("keydown", e => e.key == "Enter" ? balance_it(true) : null);
+
+function check_url() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const equation = urlParams.get("equation");
+  const equation_field = document.querySelector("#equation");
+
+  if (equation) {
+    equation_field.value = equation;
+    balance_it(false);
+  }
+}
+
+check_url();
 
 // the loading screen element
 const loaderContainer = document.querySelector('.loader-container');
