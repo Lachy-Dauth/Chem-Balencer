@@ -187,7 +187,7 @@ function balance_equation(string){
     const subscript_regex = /\d*$|.*(?!\d*$)./g;
     const bracket_regex = /^\(|\)$/g;
 
-    if (component == "e") {
+    if (component == "e" || component == "e-" || component == "e^-") {
       compound.e -= 1;
       total.e -= 1;
       return;
