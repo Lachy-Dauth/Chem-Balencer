@@ -376,6 +376,8 @@ function balance_it(){
   hideLoading(); // removes the loading screen since it is done
 }
 
+window.addEventListener("keydown", e => e.key == "Enter" ? balance_it() : null);
+
 // the loading screen element
 const loaderContainer = document.querySelector('.loader-container');
 
