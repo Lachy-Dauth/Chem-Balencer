@@ -392,6 +392,15 @@ function check_url() {
   }
 }
 
+function append_equation(str) {
+  const equation_field = document.querySelector("#equation");
+  equation_field.value += str;
+}
+
+const buttons = document.querySelectorAll(".button_container > button");
+console.log(buttons)
+buttons.forEach(button => button.addEventListener("click", e => append_equation(e.target.innerHTML)));
+
 check_url();
 
 // the loading screen element

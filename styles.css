@@ -27,7 +27,19 @@ main {
   background-color: rgba(185, 225, 233, 0.499);
 } 
 
+.button_container {
+  display: none; 
+}
+
 @media (pointer:none), (pointer:coarse) {
+  .button_container {
+    padding-top: 10px;
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 40px;
+  }
   main {
     padding-left: 0px;
   } 
