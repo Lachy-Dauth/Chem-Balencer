@@ -43,6 +43,9 @@ main {
   main {
     padding-left: 0px;
   } 
+  .wide_text_field {
+    grid-template-columns: 3fr 2fr;
+  }
 }
 
 h1 {
