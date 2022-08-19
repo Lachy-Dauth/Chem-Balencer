@@ -31,23 +31,6 @@ main {
   display: none; 
 }
 
-@media (pointer:none), (pointer:coarse) {
-  .button_container {
-    padding-top: 10px;
-    width: 100%;
-    display: grid;
-    gap: 10px;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 40px;
-  }
-  main {
-    padding-left: 0px;
-  } 
-  .wide_text_field {
-    grid-template-columns: 3fr 2fr;
-  }
-}
-
 h1 {
   text-align: center;
   border-bottom: 1px solid black;
@@ -148,4 +131,22 @@ input, button {
 
 .loader-container-hidden {
   display: none; 
+}
+
+
+@media (pointer:none), (pointer:coarse) {
+  .button_container {
+    padding-top: 10px;
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 40px;
+  }
+  main {
+    padding-left: 0px;
+  } 
+  .wide_text_field {
+    grid-template-columns: 3fr 2fr;
+  }
 }
