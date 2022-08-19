@@ -171,9 +171,11 @@ function balance_equation(string){
       .split(/=>|=|→|➔|➜|➙/);
 
   // breaks the sides into compounds
-  const split_regex = /(?<!\^\d|\^)\+/g;
-  const left_components = lhs.split(split_regex);
-  const right_components = rhs.split(split_regex);
+  const split_regex = /\+/g;
+  lhs.replace(/\^\d*\+/g, electron => electron.slice(0, -1) + "⊕");
+  rhs.replace(/\^\d*\+/g, electron => electron.slice(0, -1) + "⊕");
+  const left_components = lhs.split(split_regex).map(compound => compound.replace(/⊕/g, "+"));
+  const right_components = rhs.split(split_regex).map(compound => compound.replace(/⊕/g, "+"));
 
   let chemicals = ["e"];
 
