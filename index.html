@@ -1,20 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HHCNJQPF"></script>
+  <!-- Cookie consent: set Google Consent Mode v2 defaults BEFORE gtag.js loads -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-53HHCNJQPF');
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+    try {
+      if (localStorage.getItem('cookie_consent') === 'accepted') {
+        gtag('consent', 'update', {
+          ad_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+          analytics_storage: 'granted'
+        });
+      }
+    } catch (e) {}
   </script>
-  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=62fc3d7c53f05f0019e8a25d&product=sticky-share-buttons" async="async"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HHCNJQPF"></script>
+  <script>
+    gtag('js', new Date());
+    gtag('config', 'G-53HHCNJQPF', { anonymize_ip: true });
+  </script>
+  <!-- ShareThis: load only after the user grants cookie consent -->
+  <script>
+    (function () {
+      function loadShareThis() {
+        if (document.getElementById('sharethis-loaded')) return;
+        var s = document.createElement('script');
+        s.id = 'sharethis-loaded';
+        s.src = 'https://platform-api.sharethis.com/js/sharethis.js#property=62fc3d7c53f05f0019e8a25d&product=sticky-share-buttons';
+        s.async = true;
+        document.head.appendChild(s);
+      }
+      document.addEventListener('cookie-consent-granted', loadShareThis);
+      try {
+        if (localStorage.getItem('cookie_consent') === 'accepted') loadShareThis();
+      } catch (e) {}
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chemistry Balancer</title>
   <script defer src="./script.js"></script>
+  <script defer src="./cookie-consent.js"></script>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
